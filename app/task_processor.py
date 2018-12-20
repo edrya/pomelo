@@ -7,22 +7,26 @@ import time
 
 redis_client = Redis()
 
-
-logging.basicConfig(filename='dispatcher.log', level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%H:%M:%S')
-logger = logging.getLogger(__name__)
-
-
 cpu_count = multiprocessing.cpu_count() - 1
 
 
 class TaskProcessor:
+    """Listening for tasks from redis.
+    Workers will read jobs from the given queues
+     in an endless loop, waiting for new work to arrive when all jobs are done.
+    """
 
-    @classmethod
-    def run(cls):
-        cls._work()
+    def __init__(self, connection=None, name='pomelo:queue:task'):
+
+        self.connection = connection
+        self.name = name
+        self.tasks = None
+
+    def run(self):
+        self.work()
 
     @staticmethod
-    def _work():
+    def work():
 
         """This starts the worker loop to listen queue for a new tasks.
          If task exists it executes it.
@@ -39,12 +43,11 @@ class TaskProcessor:
             for p in processes:
                 p.join()
 
-            time.sleep(1)
-
+            time.sleep(100)
 
     @staticmethod
     def do_work():
-        task = redis_client.brpop(['pomelo:queue:task', 'queue:dep:task' ])
+        task = redis_client.brpop(['pomelo:queue:task', 'queue:dep:task'])
 
         # todo: create queue for processing
         redis_client.rpush('pomelo:queue:task:processing', task[1])
@@ -59,6 +62,14 @@ class TaskProcessor:
             Task(id=task['id'], tasks=task['tasks']).run()
 
 
+def main():
+    logger.info(f'Start loops with {cpu_count} processors')
+    TaskProcessor(connection=redis_client, name='pomelo:queue:task').run()
+
+
 if __name__ == '__main__':
-    logger.info(f'Start loops with {cpu_count}')
-    TaskProcessor.run()
+    logging.basicConfig(filename='processor.log', filemode='w', level=logging.INFO, format='%(asctime)s - %(message)s',
+                        datefmt='%H:%M:%S')
+    logger = logging.getLogger(__name__)
+
+    main()

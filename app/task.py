@@ -23,7 +23,7 @@ class Task(object):
         """ This performs some calculation using the subtasks (if any), then store the output in Redis.
         """
         print("Running task {0}".format(self.id))
-        print(time.sleep(20))
+        # print(time.sleep(20))
 
         # Run calculation
         if len(self.tasks) == 0:

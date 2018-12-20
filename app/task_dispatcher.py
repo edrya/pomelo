@@ -15,7 +15,7 @@ class TaskDispatcher:
     dispatcher.log -  logs all events to the dispatcher.log
 
     """
-    TIMEOUT = 10
+    TIMEOUT = 100
 
     def __init__(self, connection=None, name='pomelo:queue:task'):
 
@@ -35,20 +35,21 @@ class TaskDispatcher:
 
         try:
             while tasks:
-                for idx, task in enumerate(tasks):
-                    if not task['tasks']:
-                        self.enqueue(task)
-                        tasks.pop(idx)
+                for t in tasks:
+                    if not t['tasks']:
+                        self.enqueue(t)
+                        tasks.remove(t)
                     else:
-                        if self.enqueue_ready(task):
-                            self.enqueue(task)
-                            tasks.pop(idx)
-
-                time.sleep(1)
+                        if self.enqueue_ready(t):
+                            self.enqueue(t)
+                            tasks.remove(t)
 
         except KeyboardInterrupt:
-            print('Shutdown requested...deleting all the keys of the currently selected DB')
+            print('Program interrupted by user. Shutting down...'
+                  'deleting all the keys of the currently selected DB')
             self.connection.flush_db()
+            logger.info('Program interrupted by user. Shutting down...'
+                        'deleting all the keys of the currently selected DB')
 
     def enqueue(self, body):
         self.connection.rpush(self.name, json.dumps(body))
@@ -79,28 +80,16 @@ class TaskDispatcher:
         else:
             return False
 
-#
-# class PomeloQueue:
-#
-#     def __init__(self, connection=None, name='pomelo:queue:task'):
-#         self.connection = connection
-#         self.name = name
-#
-#     def enqueue(self, body):
-#         self.connection.rpush(self.name, json.dumps(body))
-
 
 def main():
-    logger.info(f'loading tasks to redis')
     redis_client.flush_db()
-
     tasks = TaskGenerator.generate_tasks()
+    logger.info(f'Started dispatcher with {len(tasks)} tasks')
     TaskDispatcher(connection=redis_client).run(tasks)
 
 
 if __name__ == '__main__':
-
-    logging.basicConfig(filename='dispatcher.log', level=logging.INFO, format='%(asctime)s - %(message)s',
+    logging.basicConfig(filename='dispatcher.log', filemode='w', level=logging.INFO, format='%(asctime)s - %(message)s',
                         datefmt='%H:%M:%S')
     logger = logging.getLogger(__name__)
 

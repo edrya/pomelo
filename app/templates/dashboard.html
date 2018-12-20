@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block head %}
+    {{ super() }}
+    <title>Pomelo Dashboard</title>
+{% endblock %}
+{% block content %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-8">
+                {% for task in tasks %}
+                    <p>{{ task.id }} <span>registered</span></p>
+                    <input name="task" value="{{ task.id }}"  class="task" data-status="registered" data-task-id="{{ task.id }}" hidden>
+                {% endfor %}
+            </div>
+            <div class="col-2"></div>
+        </div>
+    </div>
+{% endblock %}

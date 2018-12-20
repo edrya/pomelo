@@ -1,0 +1,20 @@
+
+body {
+    background-color: #fff;
+    font-family: 'Roboto',Helvetica, Arial, sans-serif;
+
+}
+
+.pomelo-navbar{
+    margin: 25px;
+    text-align: center;
+    color: #4A630F;
+    font-size: 2.5rem;
+    font-weight: 400;
+    letter-spacing: .05em;
+}
+.sub-header{
+    font-size: 1.2rem;
+    color: #33686A;
+
+}

@@ -1,10 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Tsdasd</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block head %}
+{{ super() }}
+<title>Pomelo Dashboard</title>
+{% endblock %}
+{% block content %}
 
-</body>
-</html>
+<div class="container inner">
+    <div class="row">
+        <div class="col-12 "><p class="pomelo-navbar heading"><i>Pomelo</i><span>task status monitor</span></p></div>
+    </div>
+    <div class="row white box">
+        <div class="col-12">
+            <div class="statistics">
+                <form action="{{ url_for('main.get_statuses') }}" id="getStatusForm" method="POST">
+                    <div class="row form-header">
+                        <div class="col-12">
+                            <button type="submit" class="btn common-button">start executing all tasks</button>
+                            <br>
+                            <p>This will dispatch and execute all registered tasks on queue default.</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 box-inner">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Task ID</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Value</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for task in tasks %}
+                                <tr>
+                                    <input name="task" value="{{ task.id }}" class="task" data-status="registered"
+                                           data-task-id="{{ task.id }}" hidden>
+                                    <td><i> {{ task.id }}</i></td>
+                                    <td><i> {{ task.status or 'registered'}}</i></td>
+                                    <td><i> {{ task.value or 'n/a' }}</i></td>
+
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 p-0">
+                            <div class="legend box-inner clearfix pl-5">
+      <span class="legend-item">
+        <span class="legend-color graph-up"></span>
+        <label>100% completed</label>
+      </span>
+                                <span class="legend-item">
+        <span class="legend-color graph-mid"></span>
+        <label>processing</label>
+      </span>
+                                <span class="legend-item">
+        <span class="legend-color graph-down"></span>
+        <label>downtime</label>
+      </span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

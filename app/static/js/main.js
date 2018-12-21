@@ -21,6 +21,24 @@ $(document).ready(function () {
 
         // Need to poll the server to get updated statuses
         // todo: replace with Socket.IO
+        function dispatch_work() {
+            $.ajax({
+                type: "post",
+                url: "/dispatch",
+                data: {
+                    status: status_data_list,
+                    ids: task_id_data_list
+                },
+                success: function (data) {
+                     getting_status();
+
+                }
+            });
+        }
+
+
+        dispatch_work();
+
         function getting_status() {
             $.ajax({
                 type: "post",
@@ -35,21 +53,19 @@ $(document).ready(function () {
                         // console.log(k, v['status']);
                         if (v['status'] === 'completed') {
                             counter++;
-
                         }
                     });
 
                     if (counter !== number_of_tasks) {
                         console.log(counter);
                         setTimeout(function () {
-                            send();
-                        }, 500);
+                           getting_status()
+                        }, 5000);
                     }
                 }
             });
         }
 
-        getting_status();
 
     });
 

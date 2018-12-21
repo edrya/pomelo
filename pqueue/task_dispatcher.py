@@ -3,8 +3,8 @@ import json
 import time
 import logging
 
-from redis_client import Redis
-from task import TaskGenerator
+from pqueue.redis_client import Redis
+from pqueue.task import TaskGenerator
 
 redis_client = Redis()
 
@@ -24,32 +24,39 @@ class TaskDispatcher:
         self.tasks = None
 
     def run(self, tasks):
+
         self.tasks = tasks
 
         if tasks:
-            self.dispatch()
+            tasks = [self.prepare(task) for task in self.tasks]
 
-    def dispatch(self):
+            while tasks:
+                if self.dispatch(tasks):
+                    continue
+                else:
+                    break
 
-        tasks = [self.prepare(task) for task in self.tasks]
+    def dispatch(self, tasks):
 
         try:
-            while tasks:
-                for t in tasks:
-                    if not t['tasks']:
+            for t in tasks:
+                if not t['tasks']:
+                    self.enqueue(t)
+                    tasks.remove(t)
+                else:
+                    if self.enqueue_ready(t):
                         self.enqueue(t)
                         tasks.remove(t)
-                    else:
-                        if self.enqueue_ready(t):
-                            self.enqueue(t)
-                            tasks.remove(t)
 
         except KeyboardInterrupt:
             print('Program interrupted by user. Shutting down...'
                   'deleting all the keys of the currently selected DB')
-            self.connection.flush_db()
             logger.info('Program interrupted by user. Shutting down...'
                         'deleting all the keys of the currently selected DB')
+
+            return False
+
+        return True
 
     def enqueue(self, body):
         self.connection.rpush(self.name, json.dumps(body))

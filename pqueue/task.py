@@ -1,4 +1,4 @@
-from redis_client import Redis
+from pqueue.redis_client import Redis
 import time
 
 
@@ -23,7 +23,7 @@ class Task(object):
         """ This performs some calculation using the subtasks (if any), then store the output in Redis.
         """
         print("Running task {0}".format(self.id))
-        # print(time.sleep(20))
+        print(time.sleep(5))
 
         # Run calculation
         if len(self.tasks) == 0:
@@ -52,5 +52,6 @@ class TaskGenerator(object):
         tasks_level_1 = [Task(1), Task(2), Task(3), Task(4)]
         tasks_level_2 = [Task(5, tasks=tasks_level_1[0:2]), Task(6, tasks=tasks_level_1)]
         tasks_level_3 = [Task(7, tasks=tasks_level_1 + tasks_level_2)]
+        tasks_level_4 = [Task(8, tasks=tasks_level_1 + tasks_level_2 + tasks_level_3)]
 
-        return tasks_level_1 + tasks_level_2 + tasks_level_3
+        return tasks_level_1 + tasks_level_2 + tasks_level_3 + tasks_level_4

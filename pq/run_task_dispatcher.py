@@ -1,19 +1,11 @@
-import os
 import json
-import time
 import logging
-
-from pqueue.redis_client import Redis
-from pqueue.task import TaskGenerator
-
-redis_client = Redis()
 
 
 class TaskDispatcher:
-    """Dispatches and coordinates tasks for processing using Redis with queues.
+    """Dispatches and coordinates tasks for processing using Redis list.
 
     dispatcher.log -  logs all events to the dispatcher.log
-
     """
     TIMEOUT = 100
 
@@ -29,6 +21,7 @@ class TaskDispatcher:
 
         if tasks:
             tasks = [self.prepare(task) for task in self.tasks]
+            print(tasks)
 
             while tasks:
                 if self.dispatch(tasks):
@@ -37,7 +30,7 @@ class TaskDispatcher:
                     break
 
     def dispatch(self, tasks):
-
+        """This method put task object onto the queue based on dependencies."""
         try:
             for t in tasks:
                 if not t['tasks']:
@@ -59,12 +52,13 @@ class TaskDispatcher:
         return True
 
     def enqueue(self, body):
+        """Put a task to the shared queue"""
         self.connection.rpush(self.name, json.dumps(body))
         return True
 
     @staticmethod
     def prepare(task_obj):
-        """This prepare task for enqueuing.
+        """This method prepares task for enqueuing.
 
         :returns encoded value using json.dumps
         """
@@ -80,7 +74,7 @@ class TaskDispatcher:
 
         for tid in depends_on:
             if self.connection.get_value(tid):
-                values.append(redis_client.get_value(tid))
+                values.append(self.connection.get_value(tid))
 
         if len(values) == len(depends_on):
             return True
@@ -89,6 +83,12 @@ class TaskDispatcher:
 
 
 def main():
+
+    from redis_client import Redis
+    from task import TaskGenerator
+
+    redis_client = Redis()
+
     redis_client.flush_db()
     tasks = TaskGenerator.generate_tasks()
     logger.info(f'Started dispatcher with {len(tasks)} tasks')

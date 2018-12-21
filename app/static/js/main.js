@@ -19,8 +19,9 @@ $(document).ready(function () {
 
         var number_of_tasks = tasks.length;
 
-        // Need to poll the server to get updated statuses
+
         // todo: replace with Socket.IO
+        // Put tasks into queue
         function dispatch_work() {
             $.ajax({
                 type: "post",
@@ -30,15 +31,17 @@ $(document).ready(function () {
                     ids: task_id_data_list
                 },
                 success: function (data) {
-                     getting_status();
+                    $('.bar').show();
+                    $('.load-bar').show();
+                    getting_status();
 
                 }
             });
         }
 
-
         dispatch_work();
 
+        // Need to poll the server to get updated statuses
         function getting_status() {
             $.ajax({
                 type: "post",
@@ -53,20 +56,39 @@ $(document).ready(function () {
                         // console.log(k, v['status']);
                         if (v['status'] === 'completed') {
                             counter++;
+                            updating_status(v)
                         }
                     });
 
                     if (counter !== number_of_tasks) {
-                        console.log(counter);
                         setTimeout(function () {
-                           getting_status()
+                            getting_status()
                         }, 5000);
+                    }
+                    else {
+
+                        $('.bar').hide();
+                        $('.load-bar').hide();
                     }
                 }
             });
         }
 
-
     });
+
+    function updating_status(completed) {
+        var task_id = completed['id'];
+        var status = completed['status'];
+        var value = completed['value'];
+
+        var first = $('tr[data-task-id="' + task_id + '"]').find('td:nth-child(1) i');
+        var second = $('tr[data-task-id="' + task_id + '"]').find('td:nth-child(2) i');
+        var third = $('tr[data-task-id="' + task_id + '"]').find('td:nth-child(3) i');
+
+        second.addClass('success-text').html(status);
+        third.html(completed['value']);
+
+
+    }
 
 });

@@ -1,9 +1,8 @@
 import os
-from flask import Flask, request, current_app
-from pqueue.redis_client import Redis
-from pqueue.task import TaskGenerator, Task
-from pqueue.task_dispatcher import TaskDispatcher
-from pqueue.task_processor import TaskProcessor
+from flask import Flask
+from pq.redis_client import Redis
+from pq.task import TaskGenerator
+from pq.run_task_dispatcher import TaskDispatcher
 
 from config import config
 
@@ -16,12 +15,9 @@ def create_app(config_name=None):
     app.config.from_object(config[config_name])
 
     app.redis_connection = Redis()
-    app.task_generator = TaskGenerator()
+    app.task_generator = TaskGenerator
 
-    app.TaskDispatcher = TaskDispatcher
-    app.TaskProcessor = TaskProcessor
-
-
+    app.task_dispatcher = TaskDispatcher(connection=app.redis_connection)
 
 
     # Register pomelo routes

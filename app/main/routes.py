@@ -11,7 +11,7 @@ from app.main import bp
 
 @bp.route('/',  methods=['GET', 'POST'])
 def index():
-
+    current_app.redis_connection.flush_db()
     tasks = current_app.task_generator.generate_tasks()
 
     return render_template('index.html', tasks=tasks)
@@ -33,8 +33,6 @@ def get_statuses():
                 task['status'] = 'completed'
                 task['value'] = value
 
-        print(tasks)
-
         return jsonify(tasks), 200
 
     return render_template('dashboard.html')
@@ -43,10 +41,9 @@ def get_statuses():
 @bp.route('/dispatch', methods=['POST'])
 def run_task_dispatcher():
 
-    current_app.redis_connection.flush_db()
     tasks = current_app.task_generator.generate_tasks()
 
-    Thread(target=current_app.TaskDispatcher(current_app.redis_connection).run, args=(tasks,)).start()
+    Thread(target=current_app.task_dispatcher.run, args=(tasks,)).start()
 
     return jsonify({'success': True}), 202
 
@@ -54,10 +51,3 @@ def run_task_dispatcher():
 def get_status(key):
     value = current_app.redis_connection.get_value(key)
     return value
-#
-#
-# def run_task_processor():
-#
-#     current_app.TaskProcessor(connection=current_app.redis_connection).run()
-#
-#     return True

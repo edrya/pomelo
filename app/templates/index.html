@@ -21,21 +21,24 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-12 box-inner">
+                        <div class="col-12 box-inner p-0">
+                            <div class="load-bar">
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                            </div>
                             <table class="table">
                                 <thead>
                                 <tr>
-                                    <th scope="col">Task ID</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Value</th>
+                                    <th class="w-20">Task ID</th>
+                                    <th class="w-60">Status</th>
+                                    <th class="w-20">Value</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {% for task in tasks %}
-                                <tr>
-                                    <input name="task" value="{{ task.id }}" class="task" data-status="registered"
-                                           data-task-id="{{ task.id }}" hidden>
-                                    <td><i> {{ task.id }}</i></td>
+                                <tr class="task" data-status="registered" data-task-id="{{ task.id }}">
+                                    <td><i>{{ task.id }}</i></td>
                                     <td><i> {{ task.status or 'registered'}}</i></td>
                                     <td><i> {{ task.value or 'n/a' }}</i></td>
 
@@ -49,18 +52,16 @@
                     <div class="row">
                         <div class="col-12 p-0">
                             <div class="legend box-inner clearfix pl-5">
-      <span class="legend-item">
-        <span class="legend-color graph-up"></span>
-        <label>100% completed</label>
-      </span>
+                                <span class="legend-item"><span class="legend-color success"></span>
+                                    <label>completed</label>
+                                </span>
                                 <span class="legend-item">
-        <span class="legend-color graph-mid"></span>
-        <label>processing</label>
-      </span>
+                                    <span class="legend-color graph-mid"></span>
+                                    <label>processing</label>
+                                </span>
                                 <span class="legend-item">
-        <span class="legend-color graph-down"></span>
-        <label>downtime</label>
-      </span>
+                                    <span class="legend-color graph-down"></span><label>registered</label>
+                                </span>
                             </div>
                         </div>
                     </div>

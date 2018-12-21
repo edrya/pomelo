@@ -21,7 +21,7 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
-
+    THREADED = False
 
 config = {
     'development': DevelopmentConfig,

@@ -88,7 +88,7 @@ def main():
     # by default the task processor will start with 1 worker
     # replace with cpu_count to use all available core
 
-    num_worker = 4
+    num_worker = 1
     logger.info(f'Starting worker with {num_worker} processor')
 
     print(f'Starting worker with {num_worker} processor')
